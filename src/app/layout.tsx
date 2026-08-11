@@ -17,11 +17,12 @@ export default function RootLayout({ children }: LayoutProps<"/">) {
 	return (
 		<html lang="en">
 			<body
-				className={`${josefin.className} antialiased bg-primary-950 text-primary-100 min-h-screen flex flex-col`}>
+				className={`${josefin.className} bg-primary-950 text-primary-100 flex min-h-screen flex-col antialiased`}
+			>
 				<Header />
 
-				<div className="flex-1 px-4 sm:px-8 py-12">
-					<main className="max-w-7xl mx-auto">{children}</main>
+				<div className="flex-1 px-4 py-12 sm:px-8">
+					<main className="mx-auto max-w-7xl">{children}</main>
 				</div>
 			</body>
 		</html>
