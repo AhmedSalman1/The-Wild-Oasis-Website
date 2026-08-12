@@ -49,6 +49,9 @@ export const getCabins = async function () {
 	return data;
 };
 
+type Cabins = Awaited<ReturnType<typeof getCabins>>;
+export type Cabin = Cabins[number];
+
 // Guests are uniquely identified by their email address
 export async function getGuest(email) {
 	const { data, error } = await supabase
