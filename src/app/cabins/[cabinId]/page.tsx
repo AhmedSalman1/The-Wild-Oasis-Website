@@ -1,4 +1,5 @@
 import Image from "next/image";
+import { notFound } from "next/navigation";
 import { getCabin } from "@/lib/data-service";
 import { EyeSlashIcon, MapPinIcon, UsersIcon } from "@heroicons/react/24/solid";
 
@@ -17,7 +18,7 @@ export default async function Page({ params }: PageProps) {
 	const { cabinId } = await params;
 	const cabin = await getCabin(cabinId);
 
-	if (!cabin) return null;
+	if (!cabin) notFound();
 
 	const { name, maxCapacity, image, description } = cabin;
 
