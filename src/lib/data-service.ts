@@ -1,3 +1,4 @@
+import { cacheLife, cacheTag } from "next/cache";
 import { eachDayOfInterval } from "date-fns";
 import { supabase } from "./supabase";
 import type {
@@ -14,6 +15,10 @@ import type {
 //! GET
 
 export async function getCabin(id: number | string): Promise<Cabin | null> {
+	"use cache";
+	cacheLife("hours");
+	cacheTag("cabins");
+
 	const { data, error } = await supabase
 		.from("cabins")
 		.select("*")
@@ -31,6 +36,10 @@ export async function getCabin(id: number | string): Promise<Cabin | null> {
 export async function getCabinPrice(
 	id: number | string
 ): Promise<CabinPrice | null> {
+	"use cache";
+	cacheLife("hours");
+	cacheTag("cabins");
+
 	const { data, error } = await supabase
 		.from("cabins")
 		.select("regularPrice, discount")
@@ -46,6 +55,10 @@ export async function getCabinPrice(
 }
 
 export async function getCabins(): Promise<CabinSummary[]> {
+	"use cache";
+	cacheLife("hours");
+	cacheTag("cabins");
+
 	const { data, error } = await supabase
 		.from("cabins")
 		.select("id, name, maxCapacity, regularPrice, discount, image")

@@ -1,4 +1,7 @@
+"use client";
+
 import Link from "next/link";
+import { usePathname } from "next/navigation";
 import {
 	CalendarDaysIcon,
 	HomeIcon,
@@ -25,13 +28,15 @@ const navLinks = [
 ];
 
 function SideNavigation() {
+	const pathname = usePathname();
+
 	return (
 		<nav className="border-primary-900 h-auto border-b md:h-full md:border-r md:border-b-0">
 			<ul className="flex h-full flex-row gap-2 overflow-x-auto text-base md:flex-col md:overflow-x-visible md:text-lg">
 				{navLinks.map((link) => (
 					<li key={link.name} className="flex-1 md:flex-none">
 						<Link
-							className="hover:bg-primary-900 hover:text-primary-100 text-primary-200 flex items-center justify-center gap-2 rounded-md px-3 py-3 font-semibold whitespace-nowrap transition-colors md:justify-start md:gap-4 md:rounded-none md:px-5"
+							className={`hover:bg-primary-900 hover:text-primary-100 text-primary-200 flex items-center justify-center gap-2 rounded-md px-3 py-3 font-semibold whitespace-nowrap transition-colors md:justify-start md:gap-4 md:rounded-none md:px-5 ${pathname === link.href ? "bg-primary-900" : ""}`}
 							href={link.href}
 						>
 							{link.icon}

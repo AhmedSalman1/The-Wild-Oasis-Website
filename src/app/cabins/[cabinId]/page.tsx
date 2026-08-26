@@ -1,7 +1,8 @@
 import Image from "next/image";
 import { notFound } from "next/navigation";
-import { getCabin } from "@/lib/data-service";
+import { getCabin, getCabins } from "@/lib/data-service";
 import { EyeSlashIcon, MapPinIcon, UsersIcon } from "@heroicons/react/24/solid";
+import TextExpander from "@/components/ui/TextExpander";
 
 type PageProps = {
 	params: Promise<{ cabinId: string }>;
@@ -12,6 +13,13 @@ export async function generateMetadata({ params }: PageProps) {
 	const cabin = await getCabin(cabinId);
 	if (!cabin) return { title: "Cabin Not Found" };
 	return { title: `Cabin ${cabin.name}` };
+}
+
+export async function generateStaticParams() {
+	const cabins = await getCabins();
+
+	const ids = cabins.map((cabin) => ({ cabinId: String(cabin.id) }));
+	return ids;
 }
 
 export default async function Page({ params }: PageProps) {
@@ -41,7 +49,7 @@ export default async function Page({ params }: PageProps) {
 					</h3>
 
 					<p className="text-primary-300 mb-7 text-base sm:text-lg lg:mb-10">
-						{description}
+						<TextExpander>{description}</TextExpander>
 					</p>
 
 					<ul className="mb-4 flex flex-col gap-4 lg:mb-7">
