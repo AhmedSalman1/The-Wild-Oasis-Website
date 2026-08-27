@@ -24,7 +24,7 @@ export default async function Page() {
 				<SelectCountry
 					name="nationality"
 					id="nationality"
-					className="bg-primary-200 text-primary-800 w-full rounded-sm px-5 py-3 shadow-sm"
+					className="bg-primary-200 text-primary-800 w-full min-w-0 truncate rounded-sm px-4 py-3 text-sm shadow-sm md:px-5 md:text-base"
 					defaultCountry={nationality}
 				/>
 			</UpdateProfileForm>

@@ -12,7 +12,7 @@ export default function UpdateProfileForm({
 	const countryFlag = "https://flagcdn.com/eg.svg";
 
 	return (
-		<form className="bg-primary-900 flex flex-col gap-6 px-12 py-8 text-lg">
+		<form className="bg-primary-900 flex w-full max-w-full min-w-0 flex-col gap-6 px-4 py-8 text-lg sm:px-8 md:px-12">
 			<div className="space-y-2">
 				<label>Full name</label>
 				<input
@@ -29,7 +29,7 @@ export default function UpdateProfileForm({
 				/>
 			</div>
 
-			<div className="space-y-2">
+			<div className="w-full min-w-0 space-y-2">
 				<div className="flex items-center justify-between">
 					<label htmlFor="nationality">Where are you from?</label>
 					<Image
