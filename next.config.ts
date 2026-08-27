@@ -5,9 +5,16 @@ const nextConfig: NextConfig = {
 	reactCompiler: true,
 	images: {
 		remotePatterns: [
-			new URL(
-				"https://yecjjugxzbxgmjiwhzgt.supabase.co/storage/v1/object/public/cabin-images/**"
-			),
+			{
+				protocol: "https",
+				hostname: "yecjjugxzbxgmjiwhzgt.supabase.co",
+				port: "",
+				pathname: "/storage/v1/object/public/cabin-images/**",
+			},
+			{
+				protocol: "https",
+				hostname: "flagcdn.com",
+			},
 		],
 	},
 	cacheComponents: true,

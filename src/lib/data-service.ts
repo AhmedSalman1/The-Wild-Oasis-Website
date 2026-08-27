@@ -167,12 +167,23 @@ export async function getSettings(): Promise<Settings> {
 }
 
 export async function getCountries() {
+	"use cache";
+	cacheLife("weeks");
+
 	try {
-		const res = await fetch(
-			"https://restcountries.com/v2/all?fields=name,flag"
-		);
-		const countries = await res.json();
-		return countries;
+		const res = await fetch("https://flagcdn.com/en/codes.json");
+		if (!res.ok) throw new Error("Failed to fetch");
+
+		const codes = (await res.json()) as Record<string, string>;
+
+		return Object.entries(codes)
+			.filter(([code]) => code !== "il")
+			.map(([code, name]) => ({
+				code,
+				name,
+				flag: `https://flagcdn.com/${code}.svg`,
+			}))
+			.sort((a, b) => a.name.localeCompare(b.name));
 	} catch {
 		throw new Error("Could not fetch countries");
 	}
