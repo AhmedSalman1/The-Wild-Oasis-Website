@@ -3,6 +3,7 @@ import { josefin } from "@/styles/fonts";
 
 import "@/styles/globals.css";
 import Header from "@/components/ui/Header";
+import { ReservationProvider } from "@/components/reservations/ReservationContext";
 
 export const metadata: Metadata = {
 	title: {
@@ -22,7 +23,9 @@ export default function RootLayout({ children }: LayoutProps<"/">) {
 				<Header />
 
 				<div className="grid flex-1 px-4 py-4 sm:px-8 md:py-8 lg:py-12">
-					<main className="mx-auto w-full max-w-7xl">{children}</main>
+					<main className="mx-auto w-full max-w-7xl">
+						<ReservationProvider>{children}</ReservationProvider>
+					</main>
 				</div>
 			</body>
 		</html>

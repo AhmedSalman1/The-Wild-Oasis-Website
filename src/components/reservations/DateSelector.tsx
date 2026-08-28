@@ -3,6 +3,7 @@
 import { useEffect, useState } from "react";
 import { DayPicker, type DateRange } from "react-day-picker";
 import { differenceInDays, isWithinInterval } from "date-fns";
+import { useReservation } from "./ReservationContext";
 import { Cabin, Settings } from "@/types";
 import "react-day-picker/dist/style.css";
 
@@ -28,12 +29,7 @@ export default function DateSelector({
 	cabin,
 }: DateSelectorProps) {
 	const [numberOfMonths, setNumberOfMonths] = useState(2);
-	const [range, setRange] = useState<DateRange | undefined>({
-		from: undefined,
-		to: undefined,
-	});
-
-	const resetRange = () => setRange({ from: undefined, to: undefined });
+	const { range, setRange, resetRange } = useReservation();
 
 	const displayRange = isAlreadyBooked(range, bookedDates)
 		? { from: undefined, to: undefined }

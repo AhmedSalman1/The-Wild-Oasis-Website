@@ -1,8 +1,10 @@
 "use client";
 
 import { Cabin } from "@/types";
+import { useReservation } from "./ReservationContext";
 
 export default function ReservationForm({ cabin }: { cabin: Cabin }) {
+	const { range } = useReservation();
 	const { maxCapacity } = cabin;
 
 	return (
@@ -22,6 +24,11 @@ export default function ReservationForm({ cabin }: { cabin: Cabin }) {
           <p>{user.name}</p>
         </div> */}
 				</div>
+
+				<p>
+					You have selected {range?.from?.toLocaleDateString()} to{" "}
+					{range?.to?.toLocaleDateString()}
+				</p>
 
 				<form className="bg-primary-900 flex flex-1 flex-col justify-between gap-6 px-4 py-6 sm:px-8 sm:py-8 xl:px-10">
 					<div className="w-full min-w-0 space-y-2">
