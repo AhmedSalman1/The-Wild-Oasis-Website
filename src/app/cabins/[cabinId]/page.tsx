@@ -3,6 +3,8 @@ import { notFound } from "next/navigation";
 import { getCabin, getCabins } from "@/lib/data-service";
 import { EyeSlashIcon, MapPinIcon, UsersIcon } from "@heroicons/react/24/solid";
 import TextExpander from "@/components/ui/TextExpander";
+import DateSelector from "@/components/reservations/DateSelector";
+import ReservationForm from "@/components/reservations/ReservationForm";
 
 type PageProps = {
 	params: Promise<{ cabinId: string }>;
@@ -78,9 +80,14 @@ export default async function Page({ params }: PageProps) {
 			</div>
 
 			<div className="mt-8">
-				<h2 className="text-center text-2xl font-semibold sm:text-4xl lg:text-5xl">
-					Reserve today. Pay on arrival.
+				<h2 className="text-accent-400 mb-6 text-center text-xl font-semibold sm:text-3xl lg:mb-10 lg:text-4xl">
+					Reserve {name} today. Pay on arrival.
 				</h2>
+
+				<div className="border-primary-800 grid min-w-0 grid-cols-1 items-stretch border xl:grid-cols-[1.5fr_1fr]">
+					<DateSelector />
+					<ReservationForm />
+				</div>
 			</div>
 		</div>
 	);

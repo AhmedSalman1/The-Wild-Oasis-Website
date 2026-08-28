@@ -1,4 +1,5 @@
 import { cacheLife, cacheTag } from "next/cache";
+import { connection } from "next/server";
 import { eachDayOfInterval } from "date-fns";
 import { supabase } from "./supabase";
 import type {
@@ -124,6 +125,8 @@ export async function getBookings(guestId: number | string) {
 export async function getBookedDatesByCabinId(
 	cabinId: number | string
 ): Promise<Date[]> {
+	await connection();
+
 	const today = new Date();
 	today.setUTCHours(0, 0, 0, 0);
 	const todayIso = today.toISOString();
@@ -156,6 +159,9 @@ export async function getBookedDatesByCabinId(
 }
 
 export async function getSettings(): Promise<Settings> {
+	"use cache";
+	cacheLife("days");
+
 	const { data, error } = await supabase.from("settings").select("*").single();
 
 	if (error) {
