@@ -2,9 +2,20 @@
 
 import { useEffect, useState } from "react";
 import { DayPicker } from "react-day-picker";
+import { Cabin, Settings } from "@/types";
 import "react-day-picker/dist/style.css";
 
-export default function DateSelector() {
+interface DateSelectorProps {
+	settings: Settings;
+	bookedDates: Date[];
+	cabin: Cabin;
+}
+
+export default function DateSelector({
+	settings,
+	bookedDates,
+	cabin,
+}: DateSelectorProps) {
 	const [numberOfMonths, setNumberOfMonths] = useState(2);
 
 	useEffect(() => {
@@ -23,8 +34,8 @@ export default function DateSelector() {
 	const cabinPrice = 23;
 	const range = { from: null, to: null };
 
-	const minBookingLength = 1;
-	const maxBookingLength = 23;
+	// SETTINGS
+	const { minBookingLength, maxBookingLength } = settings;
 
 	return (
 		<div className="flex w-full min-w-0 flex-col justify-between">
@@ -36,8 +47,8 @@ export default function DateSelector() {
 						month: "space-y-4",
 					}}
 					mode="range"
-					min={minBookingLength + 1}
-					max={maxBookingLength}
+					min={(minBookingLength ?? 0) + 1}
+					max={maxBookingLength ?? undefined}
 					startMonth={new Date()}
 					endMonth={new Date(new Date().getFullYear() + 5, 11, 31)}
 					disabled={{ before: new Date() }}

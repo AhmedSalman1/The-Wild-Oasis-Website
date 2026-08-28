@@ -1,10 +1,9 @@
-import Image from "next/image";
 import { notFound } from "next/navigation";
+import { Suspense } from "react";
 import { getCabin, getCabins } from "@/lib/data-service";
-import { EyeSlashIcon, MapPinIcon, UsersIcon } from "@heroicons/react/24/solid";
-import TextExpander from "@/components/ui/TextExpander";
-import DateSelector from "@/components/reservations/DateSelector";
-import ReservationForm from "@/components/reservations/ReservationForm";
+import Reservation from "@/components/reservations/Reservation";
+import Spinner from "@/components/ui/Spinner";
+import Cabin from "@/components/cabins/Cabin";
 
 type PageProps = {
 	params: Promise<{ cabinId: string }>;
@@ -30,64 +29,18 @@ export default async function Page({ params }: PageProps) {
 
 	if (!cabin) notFound();
 
-	const { name, maxCapacity, image, description } = cabin;
-
 	return (
 		<div className="mx-auto max-w-6xl lg:mt-8">
-			<div className="border-primary-800 mb-8 flex flex-col border px-6 py-6 sm:px-10 lg:mb-24 lg:grid lg:grid-cols-[3fr_4fr] lg:gap-20 lg:py-3">
-				<div className="relative aspect-video w-full lg:aspect-auto lg:-translate-x-3 lg:scale-[1.15]">
-					<Image
-						src={image!}
-						fill
-						sizes="(max-width: 640px) 100vw, (max-width: 1200px) 50vw, 33vw"
-						className="object-cover"
-						alt={`Cabin ${name}`}
-					/>
-				</div>
-
-				<div>
-					<h3 className="bg-primary-950 text-accent-100 mb-2 p-4 text-3xl font-black sm:text-5xl lg:mb-5 lg:w-[150%] lg:-translate-x-63.5 lg:p-6 lg:pb-1 lg:text-7xl">
-						Cabin {name}
-					</h3>
-
-					<p className="text-primary-300 mb-7 text-base sm:text-lg lg:mb-10">
-						<TextExpander>{description}</TextExpander>
-					</p>
-
-					<ul className="mb-4 flex flex-col gap-4 lg:mb-7">
-						<li className="flex items-center gap-3">
-							<UsersIcon className="text-primary-600 h-5 w-5 shrink-0" />
-							<span className="text-base sm:text-lg">
-								For up to <span className="font-bold">{maxCapacity}</span>{" "}
-								guests
-							</span>
-						</li>
-						<li className="flex items-center gap-3">
-							<MapPinIcon className="text-primary-600 h-5 w-5 shrink-0" />
-							<span className="text-base sm:text-lg">
-								Located in the heart of the{" "}
-								<span className="font-bold">Dolomites</span> (Italy)
-							</span>
-						</li>
-						<li className="flex items-center gap-3">
-							<EyeSlashIcon className="text-primary-600 h-5 w-5 shrink-0" />
-							<span className="text-base sm:text-lg">
-								Privacy <span className="font-bold">100%</span> guaranteed
-							</span>
-						</li>
-					</ul>
-				</div>
-			</div>
+			<Cabin cabin={cabin} />
 
 			<div className="mt-8">
 				<h2 className="text-accent-400 mb-6 text-center text-xl font-semibold sm:text-3xl lg:mb-10 lg:text-4xl">
-					Reserve {name} today. Pay on arrival.
+					Reserve {cabin.name} today. Pay on arrival.
 				</h2>
 
-				<div className="border-primary-800 grid min-w-0 grid-cols-1 items-stretch border xl:grid-cols-[1.5fr_1fr]">
-					<DateSelector />
-					<ReservationForm />
-				</div>
+				<Suspense fallback={<Spinner />}>
+					<Reservation cabin={cabin} />
+				</Suspense>
 			</div>
 		</div>
 	);

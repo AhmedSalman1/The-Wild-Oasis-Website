@@ -1,7 +1,9 @@
 "use client";
 
-export default function ReservationForm() {
-	const maxCapacity = 23;
+import { Cabin } from "@/types";
+
+export default function ReservationForm({ cabin }: { cabin: Cabin }) {
+	const { maxCapacity } = cabin;
 
 	return (
 		<div className="bg-primary-900 border-primary-800 flex h-full w-full flex-col border-t xl:border-t-0 xl:border-l">
@@ -33,11 +35,13 @@ export default function ReservationForm() {
 							required
 						>
 							<option value="">Select number of guests...</option>
-							{Array.from({ length: maxCapacity }, (_, i) => i + 1).map((x) => (
-								<option value={x} key={x}>
-									{x} {x === 1 ? "guest" : "guests"}
-								</option>
-							))}
+							{Array.from({ length: maxCapacity ?? 0 }, (_, i) => i + 1).map(
+								(x) => (
+									<option value={x} key={x}>
+										{x} {x === 1 ? "guest" : "guests"}
+									</option>
+								)
+							)}
 						</select>
 					</div>
 
