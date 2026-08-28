@@ -1,9 +1,20 @@
 "use client";
 
 import { useEffect, useState } from "react";
-import { DayPicker } from "react-day-picker";
+import { DayPicker, type DateRange } from "react-day-picker";
+import { differenceInDays, isWithinInterval } from "date-fns";
 import { Cabin, Settings } from "@/types";
 import "react-day-picker/dist/style.css";
+
+function isAlreadyBooked(range: DateRange | undefined, datesArr: Date[]) {
+	return (
+		range?.from &&
+		range?.to &&
+		datesArr.some((date) =>
+			isWithinInterval(date, { start: range.from!, end: range.to! })
+		)
+	);
+}
 
 interface DateSelectorProps {
 	settings: Settings;
@@ -17,6 +28,16 @@ export default function DateSelector({
 	cabin,
 }: DateSelectorProps) {
 	const [numberOfMonths, setNumberOfMonths] = useState(2);
+	const [range, setRange] = useState<DateRange | undefined>({
+		from: undefined,
+		to: undefined,
+	});
+
+	const resetRange = () => setRange({ from: undefined, to: undefined });
+
+	const displayRange = isAlreadyBooked(range, bookedDates)
+		? { from: undefined, to: undefined }
+		: range;
 
 	useEffect(() => {
 		const handleResize = () => {
@@ -28,11 +49,13 @@ export default function DateSelector({
 		return () => window.removeEventListener("resize", handleResize);
 	}, []);
 
-	const regularPrice = 23;
-	const discount = 23;
-	const numNights = 23;
-	const cabinPrice = 23;
-	const range = { from: null, to: null };
+	const regularPrice = cabin.regularPrice ?? 0;
+	const discount = cabin.discount ?? 0;
+	const numNights =
+		displayRange?.from && displayRange?.to
+			? differenceInDays(displayRange.to, displayRange.from)
+			: 0;
+	const cabinPrice = numNights * (regularPrice - discount);
 
 	// SETTINGS
 	const { minBookingLength, maxBookingLength } = settings;
@@ -47,11 +70,16 @@ export default function DateSelector({
 						month: "space-y-4",
 					}}
 					mode="range"
+					onSelect={setRange}
+					selected={displayRange}
+
 					min={(minBookingLength ?? 0) + 1}
 					max={maxBookingLength ?? undefined}
-					startMonth={new Date()}
-					endMonth={new Date(new Date().getFullYear() + 5, 11, 31)}
-					disabled={{ before: new Date() }}
+
+					fromMonth={new Date()}
+					fromDate={new Date()}
+					toYear={new Date().getFullYear() + 5}
+					disabled={[{ before: new Date() }, ...bookedDates]}
 					captionLayout="dropdown"
 					numberOfMonths={numberOfMonths}
 				/>
@@ -92,10 +120,10 @@ export default function DateSelector({
 					) : null}
 				</div>
 
-				{range.from || range.to ? (
+				{displayRange?.from || displayRange?.to ? (
 					<button
-						className="border-primary-800 hover:bg-accent-600 border px-3 py-1.5 text-xs font-semibold transition-colors sm:text-sm"
-						onClick={() => {}}
+						className="border-primary-800 hover:bg-accent-600 border px-3 py-1.5 text-xs font-semibold transition-colors hover:cursor-pointer sm:text-sm"
+						onClick={resetRange}
 					>
 						Clear
 					</button>
