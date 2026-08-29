@@ -1,10 +1,15 @@
 "use client";
 
+import Image from "next/image";
 import { Cabin } from "@/types";
-import { useReservation } from "./ReservationContext";
 
-export default function ReservationForm({ cabin }: { cabin: Cabin }) {
-	const { range } = useReservation();
+type ReservationFormProps = {
+	cabin: Cabin;
+	// eslint-disable-next-line @typescript-eslint/no-explicit-any
+	user: any;
+};
+
+export default function ReservationForm({ cabin, user }: ReservationFormProps) {
 	const { maxCapacity } = cabin;
 
 	return (
@@ -13,22 +18,19 @@ export default function ReservationForm({ cabin }: { cabin: Cabin }) {
 				<div className="bg-primary-800 text-primary-300 flex items-center justify-between px-4 py-2 sm:px-8 xl:px-10">
 					<p className="text-sm sm:text-base">Logged in as</p>
 
-					{/* <div className='flex gap-4 items-center'>
-          <img
-            // Important to display google profile images
-            referrerPolicy='no-referrer'
-            className='h-8 rounded-full'
-            src={user.image}
-            alt={user.name}
-          />
-          <p>{user.name}</p>
-        </div> */}
+					<div className="flex items-center gap-4">
+						<Image
+							// Important to display google profile images
+							referrerPolicy="no-referrer"
+							className="h-8 rounded-full"
+							src={user.image}
+							alt={user.name}
+							width={32}
+							height={32}
+						/>
+						<p>{user.name}</p>
+					</div>
 				</div>
-
-				<p>
-					You have selected {range?.from?.toLocaleDateString()} to{" "}
-					{range?.to?.toLocaleDateString()}
-				</p>
 
 				<form className="bg-primary-900 flex flex-1 flex-col justify-between gap-6 px-4 py-6 sm:px-8 sm:py-8 xl:px-10">
 					<div className="w-full min-w-0 space-y-2">
