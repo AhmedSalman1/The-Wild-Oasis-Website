@@ -1,6 +1,8 @@
 import Link from "next/link";
+import UserAccount from "../account/UserAccount";
+import { Suspense } from "react";
 
-export default function Navigation() {
+export default async function Navigation() {
 	return (
 		<nav className="z-10 text-base sm:text-xl">
 			<ul className="flex items-center gap-4 sm:gap-8 md:gap-16">
@@ -21,12 +23,18 @@ export default function Navigation() {
 					</Link>
 				</li>
 				<li>
-					<Link
-						href="/account"
-						className="hover:text-accent-400 whitespace-nowrap transition-colors"
+					<Suspense
+						fallback={
+							<Link
+								href="/account"
+								className="hover:text-accent-400 whitespace-nowrap transition-colors"
+							>
+								Guest area
+							</Link>
+						}
 					>
-						Guest area
-					</Link>
+						<UserAccount />
+					</Suspense>
 				</li>
 			</ul>
 		</nav>
