@@ -11,6 +11,7 @@ import type {
 	BookingUpdate,
 	CabinPrice,
 	CabinSummary,
+	NewGuest,
 } from "@/types";
 
 //! GET
@@ -79,11 +80,11 @@ export async function getGuest(email: string): Promise<Guest | null> {
 		.from("guests")
 		.select("*")
 		.eq("email", email)
-		.single();
+		.maybeSingle();
 
 	if (error) {
-		// It's fine if guest doesn't exist yet
-		return null;
+		console.error("Error fetching guest:", error);
+		throw new Error("Guest could not be loaded");
 	}
 
 	return data;
@@ -193,6 +194,23 @@ export async function getCountries() {
 	} catch {
 		throw new Error("Could not fetch countries");
 	}
+}
+
+//! CREATE
+
+export async function createGuest(newGuest: NewGuest): Promise<Guest | null> {
+	const { data, error } = await supabase
+		.from("guests")
+		.upsert(newGuest, { onConflict: "email", ignoreDuplicates: true })
+		.select()
+		.maybeSingle();
+
+	if (error) {
+		console.error("Error creating guest:", error);
+		throw new Error("Guest could not be created");
+	}
+
+	return data;
 }
 
 //! UPDATE
