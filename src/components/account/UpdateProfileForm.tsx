@@ -1,6 +1,7 @@
 "use client";
 
 import Image from "next/image";
+import { updateGuest } from "@/lib/actions";
 import { Guest } from "@/types";
 
 type UpdateProfileFormProps = {
@@ -14,12 +15,11 @@ export default function UpdateProfileForm({
 }: UpdateProfileFormProps) {
 	const { fullName, email, nationalID, nationality, countryFlag } = guest;
 
-	// CHANGE
-	// const nationality = "Egypt";
-	// const countryFlag = "https://flagcdn.com/eg.svg";
-
 	return (
-		<form className="bg-primary-900 flex w-full max-w-full min-w-0 flex-col gap-6 px-4 py-8 text-lg sm:px-8 md:px-12">
+		<form
+			action={updateGuest}
+			className="bg-primary-900 flex w-full max-w-full min-w-0 flex-col gap-6 px-4 py-8 text-lg sm:px-8 md:px-12"
+		>
 			<div className="space-y-2">
 				<label>Full name</label>
 				<input

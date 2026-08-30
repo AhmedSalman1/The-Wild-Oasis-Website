@@ -215,6 +215,7 @@ export async function createGuest(newGuest: NewGuest): Promise<Guest | null> {
 
 //! UPDATE
 
+/*
 export async function updateGuest(
 	id: number | string,
 	updatedFields: GuestUpdate
@@ -267,3 +268,4 @@ export async function deleteBooking(id: number | string): Promise<boolean> {
 
 	return true;
 }
+*/
