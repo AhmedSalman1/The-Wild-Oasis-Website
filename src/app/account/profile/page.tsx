@@ -1,14 +1,12 @@
-import UpdateProfileForm from "@/components/account/UpdateProfileForm";
-import SelectCountry from "@/components/ui/SelectCountry";
+import { Suspense } from "react";
+import UpdateProfile from "@/components/account/UpdateProfile";
+import Spinner from "@/components/ui/Spinner";
 
 export const metadata = {
 	title: "Update profile",
 };
 
-export default async function Page() {
-	// CHANGE
-	const nationality = "Egypt";
-
+export default function Page() {
 	return (
 		<div>
 			<h2 className="text-accent-400 mb-4 text-2xl font-semibold">
@@ -20,14 +18,9 @@ export default async function Page() {
 				faster and smoother. See you soon!
 			</p>
 
-			<UpdateProfileForm>
-				<SelectCountry
-					name="nationality"
-					id="nationality"
-					className="bg-primary-200 text-primary-800 w-full min-w-0 truncate rounded-sm px-4 py-3 text-sm shadow-sm md:px-5 md:text-base"
-					defaultCountry={nationality}
-				/>
-			</UpdateProfileForm>
+			<Suspense fallback={<Spinner />}>
+				<UpdateProfile />
+			</Suspense>
 		</div>
 	);
 }
