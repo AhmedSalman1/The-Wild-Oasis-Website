@@ -1,6 +1,7 @@
 "use client";
 
 import Image from "next/image";
+import { useActionState } from "react";
 import { updateGuest } from "@/lib/actions";
 import { Guest } from "@/types";
 
@@ -14,10 +15,11 @@ export default function UpdateProfileForm({
 	guest,
 }: UpdateProfileFormProps) {
 	const { fullName, email, nationalID, nationality, countryFlag } = guest;
+	const [state, formAction, isPending] = useActionState(updateGuest, null);
 
 	return (
 		<form
-			action={updateGuest}
+			action={formAction}
 			className="bg-primary-900 flex w-full max-w-full min-w-0 flex-col gap-6 px-4 py-8 text-lg sm:px-8 md:px-12"
 		>
 			<div className="space-y-2">
@@ -67,8 +69,20 @@ export default function UpdateProfileForm({
 			</div>
 
 			<div className="flex items-center justify-end gap-6">
-				<button className="bg-accent-500 text-primary-800 hover:bg-accent-600 px-8 py-4 font-semibold transition-all hover:cursor-pointer disabled:cursor-not-allowed disabled:bg-gray-500 disabled:text-gray-300">
-					Update profile
+				{state?.error && (
+					<p className="text-sm text-red-400 sm:text-base">{state.error}</p>
+				)}
+				{state?.success && (
+					<p className="text-sm text-green-400 sm:text-base">
+						Profile updated successfully
+					</p>
+				)}
+
+				<button
+					disabled={isPending}
+					className="bg-accent-500 text-primary-800 hover:bg-accent-600 px-8 py-4 text-base font-semibold text-nowrap transition-all hover:cursor-pointer disabled:cursor-not-allowed disabled:bg-gray-500 disabled:text-gray-300 sm:text-lg"
+				>
+					{isPending ? "Updating..." : "Update profile"}
 				</button>
 			</div>
 		</form>
