@@ -21,6 +21,15 @@ export type CabinSummary = Pick<
 	"id" | "name" | "maxCapacity" | "regularPrice" | "discount" | "image"
 >;
 
-export type GuestBooking = Booking & {
-	cabins: Pick<Cabin, "name" | "image"> | null;
+export type GuestBookingRow = {
+	id: number;
+	created_at: string;
+	startDate: string;
+	endDate: string;
+	numNights: number;
+	numGuests: number;
+	totalPrice: number;
+	guestId: number;
+	cabinId: number;
+	cabins: { name: string; image: string };
 };

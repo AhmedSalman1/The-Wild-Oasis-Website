@@ -7,10 +7,9 @@ import type {
 	Booking,
 	Guest,
 	Settings,
-	GuestUpdate,
-	BookingUpdate,
 	CabinPrice,
 	CabinSummary,
+	GuestBookingRow,
 	NewGuest,
 } from "@/types";
 
@@ -105,8 +104,12 @@ export async function getBooking(id: number | string): Promise<Booking> {
 	return data;
 }
 
-// Note: We let TS infer the return type because of the nested `cabins(name, image)` relation
-export async function getBookings(guestId: number | string) {
+// View-model fields are guaranteed non-null by app invariants: every booking
+// has dates, a price, and a cabin (required cabinId FK), even though the
+// generated DB types mark these columns nullable.
+export async function getBookings(
+	guestId: number | string
+): Promise<GuestBookingRow[]> {
 	const { data, error } = await supabase
 		.from("bookings")
 		.select(
@@ -120,7 +123,7 @@ export async function getBookings(guestId: number | string) {
 		throw new Error("Bookings could not get loaded");
 	}
 
-	return data ?? [];
+	return (data ?? []) as GuestBookingRow[];
 }
 
 export async function getBookedDatesByCabinId(
