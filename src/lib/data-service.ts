@@ -89,7 +89,7 @@ export async function getGuest(email: string): Promise<Guest | null> {
 	return data;
 }
 
-export async function getBooking(id: number | string): Promise<Booking> {
+export async function getBooking(id: number | string): Promise<Booking | null> {
 	const { data, error } = await supabase
 		.from("bookings")
 		.select("*")
@@ -98,7 +98,7 @@ export async function getBooking(id: number | string): Promise<Booking> {
 
 	if (error) {
 		console.error(error);
-		throw new Error("Booking could not get loaded");
+		return null;
 	}
 
 	return data;
