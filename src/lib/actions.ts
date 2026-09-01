@@ -48,6 +48,23 @@ export async function updateGuest(
 	return { success: true };
 }
 
+export async function deleteBooking(bookingId: number) {
+	const session = await auth();
+	const guestId = session?.user?.guestId;
+
+	if (!session || !guestId) throw new Error("You must be logged in");
+
+	const { error } = await supabase
+		.from("bookings")
+		.delete()
+		.eq("id", bookingId)
+		.eq("guestId", guestId);
+
+	if (error) throw new Error("Booking could not be deleted");
+
+	revalidatePath("/account/reservations");
+}
+
 export async function signInAction() {
 	await signIn("google", {
 		redirectTo: "/account",
