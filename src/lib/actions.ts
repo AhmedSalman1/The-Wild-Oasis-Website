@@ -114,6 +114,59 @@ export async function updateBooking(
 	redirect("/account/reservations");
 }
 
+export async function createBooking(
+	prevState: ActionState | null,
+	formData: FormData
+): Promise<ActionState> {
+	const session = await auth();
+	const guestId = session?.user?.guestId;
+	if (!session || !guestId) return { error: "You must be logged in" };
+
+	// Extract booking data from hidden input
+	const bookingData = JSON.parse(String(formData.get("bookingData") ?? ""));
+	const numGuests = Number(formData.get("numGuests"));
+
+	if (!bookingData.startDate || !bookingData.endDate) {
+		return { error: "Please select valid check-in and check-out dates" };
+	}
+
+	// 2) Fetch cabin details from DB (Single Source of Truth)
+	const { data: cabin, error: cabinError } = await supabase
+		.from("cabins")
+		.select("maxCapacity, regularPrice, discount")
+		.eq("id", bookingData.cabinId)
+		.single();
+
+	if (cabinError || !cabin || cabin.maxCapacity == null)
+		return { error: "Cabin not found" };
+
+	// 3) Validate Guests Capacity
+	const { maxCapacity } = cabin;
+	if (!Number.isInteger(numGuests) || numGuests < 1 || numGuests > maxCapacity)
+		return { error: `Number of guests must be between 1 and ${maxCapacity}` };
+
+	const newBooking = {
+		...bookingData,
+		guestId,
+		numGuests: Number(formData.get("numGuests")),
+		observations: String(formData.get("observations") ?? "")
+			.trim()
+			.slice(0, 1000),
+		extrasPrice: 0,
+		totalPrice: bookingData.cabinPrice,
+		isPaid: false,
+		hasBreakfast: false,
+		status: "unconfirmed",
+	};
+
+	const { error } = await supabase.from("bookings").insert([newBooking]);
+	if (error) return { error: "Booking could not be created" };
+
+	revalidatePath(`/cabins/${bookingData.cabinId}`);
+
+	redirect("/cabins/thankyou");
+}
+
 export async function signInAction() {
 	await signIn("google", {
 		redirectTo: "/account",
