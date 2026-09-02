@@ -1,18 +1,19 @@
 "use server";
 
 import { revalidatePath } from "next/cache";
+import { redirect } from "next/navigation";
 import { auth, signIn, signOut } from "./auth";
 import { supabase } from "./supabase";
 
-export type UpdateGuestState = {
+export type ActionState = {
 	error?: string;
 	success?: boolean;
 };
 
 export async function updateGuest(
-	prevState: UpdateGuestState | null,
+	prevState: ActionState | null,
 	formData: FormData
-): Promise<UpdateGuestState> {
+): Promise<ActionState> {
 	const session = await auth();
 	const guestId = session?.user?.guestId;
 
@@ -63,6 +64,54 @@ export async function deleteBooking(bookingId: number) {
 	if (error) throw new Error("Booking could not be deleted");
 
 	revalidatePath("/account/reservations");
+}
+
+export async function updateBooking(
+	prevState: ActionState | null,
+	formData: FormData
+): Promise<ActionState> {
+	// 1) Authentication
+	const session = await auth();
+	const guestId = session?.user?.guestId;
+	if (!session || !guestId) return { error: "You must be logged in" };
+
+	const bookingId = Number(formData.get("bookingId"));
+	const numGuests = Number(formData.get("numGuests"));
+
+	// 2) Authorization + capacity in one query
+	const { data: booking, error } = await supabase
+		.from("bookings")
+		.select("cabins(maxCapacity)")
+		.eq("id", bookingId)
+		.eq("guestId", guestId)
+		.maybeSingle();
+
+	if (error || !booking?.cabins?.maxCapacity)
+		return { error: "Booking could not be updated" };
+
+	const { maxCapacity } = booking.cabins;
+	if (!Number.isInteger(numGuests) || numGuests < 1 || numGuests > maxCapacity)
+		return { error: `Number of guests must be between 1 and ${maxCapacity}` };
+
+	// 3) Update
+	const { error: updateError } = await supabase
+		.from("bookings")
+		.update({
+			numGuests,
+			observations: String(formData.get("observations") ?? "")
+				.trim()
+				.slice(0, 1000),
+		})
+		.eq("id", bookingId)
+		.eq("guestId", guestId);
+
+	if (updateError) return { error: "Booking could not be updated" };
+
+	// 4) Revalidation
+	revalidatePath(`/account/reservations/edit/${bookingId}`);
+	revalidatePath("/account/reservations");
+
+	redirect("/account/reservations");
 }
 
 export async function signInAction() {
