@@ -2,8 +2,10 @@
 
 import { revalidatePath } from "next/cache";
 import { redirect } from "next/navigation";
+import { differenceInDays, isValid, parseISO } from "date-fns";
 import { auth, signIn, signOut } from "./auth";
 import { supabase } from "./supabase";
+import { NewBooking } from "@/types";
 
 export type ActionState = {
 	error?: string;
@@ -118,51 +120,89 @@ export async function createBooking(
 	prevState: ActionState | null,
 	formData: FormData
 ): Promise<ActionState> {
+	// 1) Authentication
 	const session = await auth();
 	const guestId = session?.user?.guestId;
 	if (!session || !guestId) return { error: "You must be logged in" };
 
-	// Extract booking data from hidden input
-	const bookingData = JSON.parse(String(formData.get("bookingData") ?? ""));
+	// 2) Basic server validation
+	const cabinId = Number(formData.get("cabinId"));
 	const numGuests = Number(formData.get("numGuests"));
+	const startDate = String(formData.get("startDate") ?? "");
+	const endDate = String(formData.get("endDate") ?? "");
 
-	if (!bookingData.startDate || !bookingData.endDate) {
+	if (!Number.isInteger(cabinId) || cabinId <= 0)
+		return { error: "Cabin not found" };
+
+	const start = parseISO(startDate);
+	const end = parseISO(endDate);
+	if (!isValid(start) || !isValid(end) || end <= start)
 		return { error: "Please select valid check-in and check-out dates" };
-	}
 
-	// 2) Fetch cabin details from DB (Single Source of Truth)
+	// 3) Cabin from DB = source of truth for capacity & price
 	const { data: cabin, error: cabinError } = await supabase
 		.from("cabins")
 		.select("maxCapacity, regularPrice, discount")
-		.eq("id", bookingData.cabinId)
+		.eq("id", cabinId)
 		.single();
 
 	if (cabinError || !cabin || cabin.maxCapacity == null)
 		return { error: "Cabin not found" };
 
-	// 3) Validate Guests Capacity
-	const { maxCapacity } = cabin;
-	if (!Number.isInteger(numGuests) || numGuests < 1 || numGuests > maxCapacity)
-		return { error: `Number of guests must be between 1 and ${maxCapacity}` };
+	if (
+		!Number.isInteger(numGuests) ||
+		numGuests < 1 ||
+		numGuests > cabin.maxCapacity
+	)
+		return {
+			error: `Number of guests must be between 1 and ${cabin.maxCapacity}`,
+		};
 
-	const newBooking = {
-		...bookingData,
+	// 4) Reject double-booking
+	const { data: overlapping } = await supabase
+		.from("bookings")
+		.select("id")
+		.eq("cabinId", cabinId)
+		.neq("status", "cancelled")
+		.lt("startDate", endDate)
+		.gt("endDate", startDate)
+		.limit(1);
+
+	if (overlapping && overlapping.length > 0)
+		return {
+			error:
+				"Those dates are no longer available. Please select different dates",
+		};
+
+	// 5) Explicit insert — trusted fields only, price computed server-side
+	const numNights = differenceInDays(end, start);
+	const cabinPrice =
+		numNights * ((cabin.regularPrice ?? 0) - (cabin.discount ?? 0));
+
+	const newBooking: NewBooking = {
+		cabinId,
 		guestId,
-		numGuests: Number(formData.get("numGuests")),
-		observations: String(formData.get("observations") ?? "")
-			.trim()
-			.slice(0, 1000),
+		startDate,
+		endDate,
+		numNights,
+		numGuests,
+		cabinPrice,
 		extrasPrice: 0,
-		totalPrice: bookingData.cabinPrice,
+		totalPrice: cabinPrice,
 		isPaid: false,
 		hasBreakfast: false,
 		status: "unconfirmed",
+		observations:
+			String(formData.get("observations") ?? "")
+				.trim()
+				.slice(0, 1000) || null,
 	};
 
 	const { error } = await supabase.from("bookings").insert([newBooking]);
 	if (error) return { error: "Booking could not be created" };
 
-	revalidatePath(`/cabins/${bookingData.cabinId}`);
+	revalidatePath(`/cabins/${cabinId}`);
+	revalidatePath("/account/reservations");
 
 	redirect("/cabins/thankyou");
 }

@@ -21,7 +21,12 @@ export default async function Reservation({ cabin }: { cabin: Cabin }) {
 				cabin={cabin}
 			/>
 			{session?.user ? (
-				<ReservationForm cabin={cabin} user={session.user} />
+				<ReservationForm
+					cabinId={cabin.id}
+					maxCapacity={cabin.maxCapacity}
+					userName={session.user.name ?? null}
+					userImage={session.user.image ?? null}
+				/>
 			) : (
 				<LoginMessage />
 			)}
