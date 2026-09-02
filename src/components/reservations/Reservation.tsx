@@ -1,8 +1,13 @@
 import DateSelector from "@/components/reservations/DateSelector";
 import ReservationForm from "@/components/reservations/ReservationForm";
-import { getBookedDatesByCabinId, getSettings } from "@/lib/data-service";
+import {
+	getBookedDatesByCabinId,
+	getSettings,
+	hasAnyBooking,
+} from "@/lib/data-service";
 import { auth } from "@/lib/auth";
 import { Cabin } from "@/types";
+import DemoModeMessage from "../ui/DemoModeMessage";
 import LoginMessage from "../ui/LoginMessage";
 
 export default async function Reservation({ cabin }: { cabin: Cabin }) {
@@ -21,12 +26,17 @@ export default async function Reservation({ cabin }: { cabin: Cabin }) {
 				cabin={cabin}
 			/>
 			{session?.user ? (
-				<ReservationForm
-					cabinId={cabin.id}
-					maxCapacity={cabin.maxCapacity}
-					userName={session.user.name ?? null}
-					userImage={session.user.image ?? null}
-				/>
+				session.user.guestId &&
+				(await hasAnyBooking(session.user.guestId)) ? (
+					<DemoModeMessage />
+				) : (
+					<ReservationForm
+						cabinId={cabin.id}
+						maxCapacity={cabin.maxCapacity}
+						userName={session.user.name ?? null}
+						userImage={session.user.image ?? null}
+					/>
+				)
 			) : (
 				<LoginMessage />
 			)}

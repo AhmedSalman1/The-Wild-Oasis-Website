@@ -126,6 +126,24 @@ export async function getBookings(
 	return (data ?? []) as GuestBookingRow[];
 }
 
+export async function hasAnyBooking(
+	guestId: number | string
+): Promise<boolean> {
+	const { data, error } = await supabase
+		.from("bookings")
+		.select("id")
+		.eq("guestId", Number(guestId))
+		.neq("status", "cancelled")
+		.limit(1);
+
+	if (error) {
+		console.error(error);
+		throw new Error("Bookings could not be loaded");
+	}
+
+	return (data?.length ?? 0) > 0;
+}
+
 export async function getBookedDatesByCabinId(
 	cabinId: number | string
 ): Promise<Date[]> {
