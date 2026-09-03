@@ -17,7 +17,7 @@ import type {
 
 export async function getCabin(id: number | string): Promise<Cabin | null> {
 	"use cache";
-	cacheLife("hours");
+	cacheLife("cabins");
 	cacheTag("cabins");
 
 	const { data, error } = await supabase
@@ -38,7 +38,7 @@ export async function getCabinPrice(
 	id: number | string
 ): Promise<CabinPrice | null> {
 	"use cache";
-	cacheLife("hours");
+	cacheLife("cabins");
 	cacheTag("cabins");
 
 	const { data, error } = await supabase
@@ -57,7 +57,7 @@ export async function getCabinPrice(
 
 export async function getCabins(): Promise<CabinSummary[]> {
 	"use cache";
-	cacheLife("hours");
+	cacheLife("cabins");
 	cacheTag("cabins");
 
 	const { data, error } = await supabase

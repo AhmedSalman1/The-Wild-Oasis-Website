@@ -22,6 +22,13 @@ const nextConfig: NextConfig = {
 		],
 	},
 	cacheComponents: true,
+	cacheLife: {
+		cabins: {
+			stale: 86400,
+			revalidate: 3600,
+			expire: 604800,
+		},
+	},
 };
 
 export default nextConfig;
