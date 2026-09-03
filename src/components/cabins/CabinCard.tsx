@@ -8,7 +8,7 @@ function CabinCard({ cabin, index }: { cabin: CabinSummary; index?: number }) {
 	const discountAmount = discount ?? 0;
 	const imageSrc = image ?? "";
 
-	const isEager = index !== undefined && index < 2;
+	const isFirstCard = index === 0;
 
 	return (
 		<div className="border-primary-800 flex flex-col border sm:flex-row">
@@ -16,9 +16,10 @@ function CabinCard({ cabin, index }: { cabin: CabinSummary; index?: number }) {
 				<Image
 					src={imageSrc}
 					fill
-					sizes="(max-width: 640px) 100vw, (max-width: 1200px) 50vw, 33vw"
+					sizes="(max-width: 639px) 100vw, (max-width: 1023px) 50vw, 33vw"
 					alt={`Cabin ${name}`}
-					loading={isEager ? "eager" : "lazy"}
+					preload={isFirstCard}
+					fetchPriority={isFirstCard ? "high" : "low"}
 					className="border-primary-800 border-b object-cover sm:border-r sm:border-b-0"
 				/>
 			</div>

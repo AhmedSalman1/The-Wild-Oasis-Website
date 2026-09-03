@@ -42,11 +42,20 @@ export default function Page() {
 				<Image
 					src={image1}
 					alt="Family sitting around a fire pit in front of cabin"
+					sizes="(max-width: 639px) 95vw, (max-width: 1023px) 50vw, 40vw"
+					placeholder="blur"
+					fetchPriority="high"
+					className="h-auto w-full"
 				/>
 			</div>
 
 			<div className="order-2 lg:order-0 lg:col-span-2">
-				<Image src={image2} alt="Family that manages The Wild Oasis" />
+				<Image
+					src={image2}
+					alt="Family that manages The Wild Oasis"
+					sizes="(max-width: 639px) 95vw, (max-width: 1023px) 50vw, 40vw"
+					className="h-auto w-full"
+				/>
 			</div>
 
 			<div className="order-1 lg:order-0 lg:col-span-3">

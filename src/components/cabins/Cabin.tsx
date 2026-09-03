@@ -12,7 +12,8 @@ export default function Cabin({ cabin }: { cabin: Cabin }) {
 				<Image
 					src={image!}
 					fill
-					sizes="(max-width: 640px) 100vw, (max-width: 1200px) 50vw, 33vw"
+					preload
+					sizes="(max-width: 1024px) 100vw, 50vw"
 					className="object-cover"
 					alt={`Cabin ${name}`}
 				/>
