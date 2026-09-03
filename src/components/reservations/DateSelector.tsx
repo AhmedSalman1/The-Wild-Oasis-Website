@@ -1,9 +1,9 @@
 "use client";
 
-import { useEffect, useState } from "react";
 import { DayPicker, type DateRange } from "react-day-picker";
 import { differenceInDays, isWithinInterval } from "date-fns";
 import { useReservation } from "./ReservationContext";
+import useMediaQuery from "@/hooks/useMediaQuery";
 import { Cabin, Settings } from "@/types";
 import "react-day-picker/dist/style.css";
 
@@ -28,22 +28,12 @@ export default function DateSelector({
 	bookedDates,
 	cabin,
 }: DateSelectorProps) {
-	const [numberOfMonths, setNumberOfMonths] = useState(2);
+	const isTwoMonths = useMediaQuery("(min-width: 768px)");
 	const { range, setRange, resetRange } = useReservation();
 
 	const displayRange = isAlreadyBooked(range, bookedDates)
 		? { from: undefined, to: undefined }
 		: range;
-
-	useEffect(() => {
-		const handleResize = () => {
-			setNumberOfMonths(window.innerWidth < 1024 ? 1 : 2);
-		};
-
-		handleResize();
-		window.addEventListener("resize", handleResize);
-		return () => window.removeEventListener("resize", handleResize);
-	}, []);
 
 	const regularPrice = cabin.regularPrice ?? 0;
 	const discount = cabin.discount ?? 0;
@@ -62,7 +52,7 @@ export default function DateSelector({
 				<DayPicker
 					className="place-self-center pt-4"
 					classNames={{
-						months: "flex flex-col xl:flex-row gap-4 xl:gap-8 justify-center",
+						months: "flex flex-col md:flex-row gap-4 md:gap-8 justify-center",
 						month: "space-y-4",
 					}}
 					mode="range"
@@ -77,7 +67,7 @@ export default function DateSelector({
 					toYear={new Date().getFullYear() + 5}
 					disabled={[{ before: new Date() }, ...bookedDates]}
 					captionLayout="dropdown"
-					numberOfMonths={numberOfMonths}
+					numberOfMonths={isTwoMonths ? 2 : 1}
 				/>
 			</div>
 
