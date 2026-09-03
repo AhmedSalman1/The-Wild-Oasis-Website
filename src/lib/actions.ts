@@ -4,6 +4,7 @@ import { revalidatePath } from "next/cache";
 import { redirect } from "next/navigation";
 import { differenceInDays, isValid, parseISO } from "date-fns";
 import { auth, signIn, signOut } from "./auth";
+import { hasAnyBooking } from "./data-service";
 import { supabase } from "./supabase";
 import { NewBooking } from "@/types";
 
@@ -125,7 +126,12 @@ export async function createBooking(
 	const guestId = session?.user?.guestId;
 	if (!session || !guestId) return { error: "You must be logged in" };
 
-	// 2) Basic server validation
+	// 2) Demo mode: only one non-cancelled booking per guest
+	const hasBooking = await hasAnyBooking(guestId);
+	if (hasBooking)
+		return { error: "👋 You can only create ONE booking in demo mode" };
+
+	// 3) Basic server validation
 	const cabinId = Number(formData.get("cabinId"));
 	const numGuests = Number(formData.get("numGuests"));
 	const startDate = String(formData.get("startDate") ?? "");
@@ -139,7 +145,7 @@ export async function createBooking(
 	if (!isValid(start) || !isValid(end) || end <= start)
 		return { error: "Please select valid check-in and check-out dates" };
 
-	// 3) Cabin from DB = source of truth for capacity & price
+	// 4) Cabin from DB = source of truth for capacity & price
 	const { data: cabin, error: cabinError } = await supabase
 		.from("cabins")
 		.select("maxCapacity, regularPrice, discount")
@@ -158,7 +164,7 @@ export async function createBooking(
 			error: `Number of guests must be between 1 and ${cabin.maxCapacity}`,
 		};
 
-	// 4) Reject double-booking
+	// 5) Reject double-booking
 	const { data: overlapping } = await supabase
 		.from("bookings")
 		.select("id")
@@ -174,7 +180,7 @@ export async function createBooking(
 				"Those dates are no longer available. Please select different dates",
 		};
 
-	// 5) Explicit insert — trusted fields only, price computed server-side
+	// 6) Explicit insert — trusted fields only, price computed server-side
 	const numNights = differenceInDays(end, start);
 	const cabinPrice =
 		numNights * ((cabin.regularPrice ?? 0) - (cabin.discount ?? 0));
